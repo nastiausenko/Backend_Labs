@@ -7,7 +7,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Service;
 import dev.usenkonastia.backend_lab2.entity.Record;
 
-import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,7 @@ public class RecordService {
                 .id(UUID.randomUUID())
                 .userId(record.getUserId())
                 .categoryId(record.getCategoryId())
-                .date(record.getDate() != null ? record.getDate() : LocalDateTime.now())
+                .date(record.getDate() != null ? record.getDate() : ZonedDateTime.now(ZoneId.of("Europe/Kiev")))
                 .expense(record.getExpense())
                 .build();
         records.put(newRecord.getId(), newRecord);

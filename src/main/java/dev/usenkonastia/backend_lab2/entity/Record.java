@@ -3,7 +3,7 @@ package dev.usenkonastia.backend_lab2.entity;
 import lombok.Builder;
 import lombok.Value;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 
@@ -13,6 +13,6 @@ public class Record {
     UUID id;
     String userId;
     String categoryId;
-    LocalDateTime date;
+    ZonedDateTime date;
     Double expense;
 }
