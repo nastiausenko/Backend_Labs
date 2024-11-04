@@ -3,7 +3,6 @@ package dev.usenkonastia.backend_lab2.service;
 import dev.usenkonastia.backend_lab2.entity.User;
 import dev.usenkonastia.backend_lab2.service.exception.UserNotFoundException;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -40,9 +39,7 @@ public class UserService {
     }
 
     public void deleteUser(UUID id) {
-        if (!users.containsKey(id)) {
-            throw new UserNotFoundException(id);
-        }
-        users.remove(id);
+        User user = getUserById(id);
+        users.remove(user.getId());
     }
 }
