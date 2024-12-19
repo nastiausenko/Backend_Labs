@@ -26,7 +26,6 @@ public class RecordEntity {
     @JoinColumn(name = "user_id", nullable = false)
     UserEntity user;
 
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     CategoryEntity category;

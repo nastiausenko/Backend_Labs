@@ -45,6 +45,7 @@ public class UserService {
         }
     }
 
+    @Transactional
     public void deleteUser(UUID id) {
         try {
             userRepository.deleteById(id);
