@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -29,4 +30,7 @@ public class CategoryEntity {
 
     @Column(name = "is_public", nullable = false)
     Boolean isPublic;
+
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    List<RecordEntity> records;
 }
