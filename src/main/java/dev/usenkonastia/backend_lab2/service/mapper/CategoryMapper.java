@@ -14,23 +14,27 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface CategoryMapper {
     @Mapping(source = "id", target = "id")
+    @Mapping(source = "user.id", target = "userId")
     @Mapping(source = "categoryName", target = "categoryName")
     @Mapping(source = "isPublic", target = "isPublic")
     @Mapping(source = "records", target = "records")
     Category toCategory(CategoryEntity categoryEntity);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(source = "userId", target = "userId")
     @Mapping(source = "categoryName", target = "categoryName")
     @Mapping(source = "isPublic", target = "isPublic")
     @Mapping(source = "records", target = "records")
     Category toCategory(CategoryDto categoryDto);
 
     @Mapping(source = "id", target = "id")
+    @Mapping(source = "userId", target = "user.id")
     @Mapping(source = "categoryName", target = "categoryName")
     @Mapping(source = "isPublic", target = "isPublic")
     @Mapping(source = "records", target = "records")
     CategoryEntity toCategoryEntity(Category category);
 
+    @Mapping(source = "userId", target = "userId")
     @Mapping(source = "categoryName", target = "categoryName")
     @Mapping(source = "isPublic", target = "isPublic")
     @Mapping(source = "records", target = "records")

@@ -1,7 +1,9 @@
 package dev.usenkonastia.backend_lab2.web;
 
-import dev.usenkonastia.backend_lab2.entity.CategoryEntity;
+import dev.usenkonastia.backend_lab2.dto.category.CategoryDto;
+import dev.usenkonastia.backend_lab2.dto.category.CategoryListDto;
 import dev.usenkonastia.backend_lab2.service.CategoryService;
+import dev.usenkonastia.backend_lab2.service.mapper.CategoryMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,19 +15,31 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CategoryController {
     private final CategoryService categoryService;
+    private final CategoryMapper categoryMapper;
+
+    @GetMapping("/public")
+    public ResponseEntity<CategoryListDto> getPublicCategories() {
+        return ResponseEntity.ok(categoryMapper.toCategoryListDto(categoryService.getPublicCategories()));
+    }
+
+    @GetMapping("/user/{id}")
+    public ResponseEntity<CategoryListDto> getUserCategories(@PathVariable UUID id) {
+        return ResponseEntity.ok(categoryMapper.toCategoryListDto(categoryService.getUserCategories(id)));
+    }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CategoryEntity> getCategoryById(@PathVariable UUID id) {
-        return ResponseEntity.ok(categoryService.getCategoryById(id));
+    public ResponseEntity<CategoryDto> getCategoryById(@PathVariable UUID id) {
+        return ResponseEntity.ok(categoryMapper.toCategoryDto(categoryService.getCategoryById(id)));
     }
 
     @PostMapping
-    public ResponseEntity<CategoryEntity> createCategory(@RequestBody CategoryEntity category) {
-        return ResponseEntity.ok(categoryService.addCategory(category));
+    public ResponseEntity<CategoryDto> createCategory(@RequestBody CategoryDto category) {
+        return ResponseEntity.ok(categoryMapper.toCategoryDto(categoryService.addCategory(categoryMapper.toCategory(category))));
     }
 
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<CategoryEntity> deleteCategory(@PathVariable UUID id) {
+    public ResponseEntity<Void> deleteCategory(@PathVariable UUID id) {
         categoryService.deleteCategory(id);
         return ResponseEntity.noContent().build();
     }

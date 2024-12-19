@@ -1,6 +1,5 @@
 package dev.usenkonastia.backend_lab2.domain;
 
-import dev.usenkonastia.backend_lab2.dto.record.RecordDto;
 import lombok.Builder;
 import lombok.Value;
 
@@ -12,7 +11,8 @@ import java.util.UUID;
 @Builder
 public class Category {
     UUID id;
+    UUID userId;
     String categoryName;
     Boolean isPublic;
-    List<RecordDto> records;
+    List<Record> records;
 }

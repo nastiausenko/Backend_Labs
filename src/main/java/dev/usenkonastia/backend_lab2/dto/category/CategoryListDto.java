@@ -9,6 +9,6 @@ import java.util.List;
 @Value
 @Builder
 @Jacksonized
-public class ListCategoryDto {
+public class CategoryListDto {
     List<CategoryEntryDto> categories;
 }

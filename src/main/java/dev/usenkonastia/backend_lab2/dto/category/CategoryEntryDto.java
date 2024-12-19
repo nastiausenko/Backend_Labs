@@ -13,6 +13,7 @@ import java.util.UUID;
 @Jacksonized
 public class CategoryEntryDto {
     UUID id;
+    UUID userId;
     String categoryName;
     Boolean isPublic;
     List<RecordDto> records;
