@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - include:
+      file: liquibase/db.changelog-init.yaml
+  - include:
+      file: liquibase/db.changelog-init-category.yaml
+  - include:
+      file: liquibase/db.changelog-init-record.yaml
