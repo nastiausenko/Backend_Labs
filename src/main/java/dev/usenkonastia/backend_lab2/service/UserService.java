@@ -1,10 +1,13 @@
 package dev.usenkonastia.backend_lab2.service;
 
-import dev.usenkonastia.backend_lab2.entity.UserEntity;
+import dev.usenkonastia.backend_lab2.domain.UserDetails;
 import dev.usenkonastia.backend_lab2.repository.UserRepository;
 import dev.usenkonastia.backend_lab2.service.exception.UserNotFoundException;
+import dev.usenkonastia.backend_lab2.service.mapper.UserMapper;
+import jakarta.persistence.PersistenceException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -13,20 +16,40 @@ import java.util.UUID;
 @AllArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
-    public UserEntity addUser(UserEntity user) {
-        return userRepository.save(user);
+    @Transactional
+    public UserDetails addUser(UserDetails user) {
+        try {
+            return userMapper.toUser(userRepository.save(userMapper.toUserEntity(user)));
+        } catch (Exception e) {
+            throw new PersistenceException(e);
+        }
     }
 
-    public UserEntity getUserById(UUID id) {
-        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+    @Transactional(readOnly = true)
+    public UserDetails getUserById(UUID id) {
+        try {
+            return userMapper.toUser(userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id)));
+        } catch (Exception e) {
+            throw new PersistenceException(e);
+        }
     }
 
-    public List<UserEntity> getUsers() {
-        return userRepository.findAll();
+    @Transactional(readOnly = true)
+    public List<UserDetails> getUsers() {
+        try {
+            return userMapper.toUserList(userRepository.findAll().iterator());
+        } catch (Exception e) {
+            throw new PersistenceException(e);
+        }
     }
 
     public void deleteUser(UUID id) {
-        userRepository.deleteById(id);
+        try {
+            userRepository.deleteById(id);
+        } catch (Exception e) {
+            throw new PersistenceException(e);
+        }
     }
 }

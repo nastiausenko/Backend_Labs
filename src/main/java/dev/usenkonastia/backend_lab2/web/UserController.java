@@ -1,12 +1,16 @@
 package dev.usenkonastia.backend_lab2.web;
 
+import dev.usenkonastia.backend_lab2.dto.user.UserListDto;
+import dev.usenkonastia.backend_lab2.dto.user.request.LoginRequestDto;
+import dev.usenkonastia.backend_lab2.dto.user.request.RegisterRequestDto;
+import dev.usenkonastia.backend_lab2.dto.user.response.AuthResponseDto;
 import dev.usenkonastia.backend_lab2.entity.UserEntity;
 import dev.usenkonastia.backend_lab2.service.UserService;
+import dev.usenkonastia.backend_lab2.service.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -14,24 +18,25 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final UserMapper userMapper;
 
     @PostMapping
-    public ResponseEntity<UserEntity> addUser(@RequestBody UserEntity user) {
-        return ResponseEntity.ok(userService.addUser(user));
+    public ResponseEntity<RegisterRequestDto> addUser(@RequestBody RegisterRequestDto user) {
+        return ResponseEntity.ok(userMapper.toRegisterUserDto(userService.addUser(userMapper.toUser(user))));
     }
 
     @GetMapping
-    public ResponseEntity<List<UserEntity>> getAllUsers() {
-        return ResponseEntity.ok(userService.getUsers());
+    public ResponseEntity<UserListDto> getAllUsers() {
+        return ResponseEntity.ok(userMapper.toUserListDto(userService.getUsers()));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserEntity> getUserById(@PathVariable UUID id) {
-        return ResponseEntity.ok(userService.getUserById(id));
+    public ResponseEntity<RegisterRequestDto> getUserById(@PathVariable UUID id) {
+        return ResponseEntity.ok(userMapper.toRegisterUserDto(userService.getUserById(id)));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<UserEntity> deleteUserById(@PathVariable UUID id) {
+    public ResponseEntity<Void> deleteUserById(@PathVariable UUID id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }

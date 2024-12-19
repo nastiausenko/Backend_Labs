@@ -6,7 +6,6 @@ import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 
 import java.time.ZonedDateTime;
-import java.util.UUID;
 
 @Value
 @Builder
@@ -17,11 +16,5 @@ public class RecordDto {
     Double expense;
 
     @NotNull
-    UUID categoryId;
-
-    @NotNull
     ZonedDateTime date;
-
-    @NotNull
-    UUID userId;
 }

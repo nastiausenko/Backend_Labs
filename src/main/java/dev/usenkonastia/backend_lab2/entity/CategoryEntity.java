@@ -31,6 +31,6 @@ public class CategoryEntity {
     @Column(name = "is_public", nullable = false)
     Boolean isPublic;
 
-    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     List<RecordEntity> records;
 }
