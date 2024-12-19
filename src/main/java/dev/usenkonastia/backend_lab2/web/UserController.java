@@ -1,6 +1,6 @@
 package dev.usenkonastia.backend_lab2.web;
 
-import dev.usenkonastia.backend_lab2.entity.User;
+import dev.usenkonastia.backend_lab2.entity.UserEntity;
 import dev.usenkonastia.backend_lab2.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,22 +16,22 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<User> addUser(@RequestBody User user) {
+    public ResponseEntity<UserEntity> addUser(@RequestBody UserEntity user) {
         return ResponseEntity.ok(userService.addUser(user));
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
+    public ResponseEntity<List<UserEntity>> getAllUsers() {
         return ResponseEntity.ok(userService.getUsers());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable UUID id) {
+    public ResponseEntity<UserEntity> getUserById(@PathVariable UUID id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<User> deleteUserById(@PathVariable UUID id) {
+    public ResponseEntity<UserEntity> deleteUserById(@PathVariable UUID id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }

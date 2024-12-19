@@ -1,45 +1,32 @@
 package dev.usenkonastia.backend_lab2.service;
 
-import dev.usenkonastia.backend_lab2.entity.User;
+import dev.usenkonastia.backend_lab2.entity.UserEntity;
+import dev.usenkonastia.backend_lab2.repository.UserRepository;
 import dev.usenkonastia.backend_lab2.service.exception.UserNotFoundException;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Service
 @AllArgsConstructor
-@NoArgsConstructor
 public class UserService {
-    private Map<UUID, User> users = new HashMap<>();
+    private final UserRepository userRepository;
 
-    public User addUser(User user) {
-        User newUser = User.builder()
-                .id(UUID.randomUUID())
-                .name(user.getName())
-                .build();
-        users.put(newUser.getId(), newUser);
-        return newUser;
+    public UserEntity addUser(UserEntity user) {
+        return userRepository.save(user);
     }
 
-    public User getUserById(UUID id) {
-        User user = users.get(id);
-        if (user == null) {
-            throw new UserNotFoundException(id);
-        }
-        return user;
+    public UserEntity getUserById(UUID id) {
+        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
     }
 
-    public List<User> getUsers() {
-        return List.copyOf(users.values());
+    public List<UserEntity> getUsers() {
+        return userRepository.findAll();
     }
 
     public void deleteUser(UUID id) {
-        User user = getUserById(id);
-        users.remove(user.getId());
+        userRepository.deleteById(id);
     }
 }
