@@ -1,19 +1,29 @@
-version: '3'
-
 services:
   app:
-    restart: always
     build:
       context: .
       dockerfile: Dockerfile
-    environment:
-      PORT: "8080"
+    container_name: spring-boot-app
     ports:
       - "8080:8080"
-
-  db:
-    image: postgres:15.4-alpine3.18
     environment:
+      TZ: Europe/Kiev
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_NAME}
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+    depends_on:
+      - db
+    restart: always
+  db:
+    image: postgres:15
+    container_name: postgres-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USERNAME}
+
+networks:
+  default:
+    name: backend_lab2_default

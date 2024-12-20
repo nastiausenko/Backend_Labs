@@ -23,6 +23,5 @@ public class RecordDto {
     Double expense;
 
     @NotNull
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "Europe/Kiev")
     ZonedDateTime date;
 }
