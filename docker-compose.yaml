@@ -1,4 +1,13 @@
 services:
+  db:
+    image: postgres:15
+    container_name: postgres-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
   app:
     build:
       context: .
@@ -14,15 +23,6 @@ services:
     depends_on:
       - db
     restart: always
-  db:
-    image: postgres:15
-    container_name: postgres-db
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
 
 networks:
   default:
