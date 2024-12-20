@@ -1,45 +1,56 @@
 package dev.usenkonastia.backend_lab2.service;
 
-import dev.usenkonastia.backend_lab2.entity.User;
+import dev.usenkonastia.backend_lab2.domain.UserDetails;
+import dev.usenkonastia.backend_lab2.repository.UserRepository;
 import dev.usenkonastia.backend_lab2.service.exception.UserNotFoundException;
+import dev.usenkonastia.backend_lab2.service.mapper.UserMapper;
+import jakarta.persistence.PersistenceException;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Service
 @AllArgsConstructor
-@NoArgsConstructor
 public class UserService {
-    private Map<UUID, User> users = new HashMap<>();
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
-    public User addUser(User user) {
-        User newUser = User.builder()
-                .id(UUID.randomUUID())
-                .name(user.getName())
-                .build();
-        users.put(newUser.getId(), newUser);
-        return newUser;
-    }
-
-    public User getUserById(UUID id) {
-        User user = users.get(id);
-        if (user == null) {
-            throw new UserNotFoundException(id);
+    @Transactional
+    public UserDetails addUser(UserDetails user) {
+        try {
+            return userMapper.toUser(userRepository.save(userMapper.toUserEntity(user)));
+        } catch (Exception e) {
+            throw new PersistenceException(e);
         }
-        return user;
     }
 
-    public List<User> getUsers() {
-        return List.copyOf(users.values());
+    @Transactional(readOnly = true)
+    public UserDetails getUserById(UUID id) {
+        try {
+            return userMapper.toUser(userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id)));
+        } catch (Exception e) {
+            throw new PersistenceException(e);
+        }
     }
 
+    @Transactional(readOnly = true)
+    public List<UserDetails> getUsers() {
+        try {
+            return userMapper.toUserList(userRepository.findAll().iterator());
+        } catch (Exception e) {
+            throw new PersistenceException(e);
+        }
+    }
+
+    @Transactional
     public void deleteUser(UUID id) {
-        User user = getUserById(id);
-        users.remove(user.getId());
+        try {
+            userRepository.deleteById(id);
+        } catch (Exception e) {
+            throw new PersistenceException(e);
+        }
     }
 }

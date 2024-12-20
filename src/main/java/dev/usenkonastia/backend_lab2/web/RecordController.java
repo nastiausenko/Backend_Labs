@@ -1,40 +1,46 @@
 package dev.usenkonastia.backend_lab2.web;
 
-import dev.usenkonastia.backend_lab2.entity.Record;
+import dev.usenkonastia.backend_lab2.dto.record.RecordDto;
+import dev.usenkonastia.backend_lab2.dto.record.RecordListDto;
+import dev.usenkonastia.backend_lab2.entity.RecordEntity;
 import dev.usenkonastia.backend_lab2.service.RecordService;
+import dev.usenkonastia.backend_lab2.service.mapper.RecordMapper;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 
 @RestController
+@Validated
 @RequestMapping("/api/v1/record")
 @RequiredArgsConstructor
 public class RecordController {
     private final RecordService recordService;
+    private final RecordMapper recordMapper;
 
     @GetMapping("/{id}")
-    public ResponseEntity<Record> getRecordById(@PathVariable UUID id) {
-        return ResponseEntity.ok(recordService.getRecordById(id));
-    }
-
-    @GetMapping
-    public ResponseEntity<List<Record>> getRecords(@RequestParam(required = false) String userId,
-                                                   @RequestParam(required = false) String categoryId) {
-        return ResponseEntity.ok(recordService.getRecords(userId, categoryId));
+    public ResponseEntity<RecordDto> getRecordById(@PathVariable UUID id) {
+        return ResponseEntity.ok(recordMapper.toRecordDto(recordService.getRecordById(id)));
     }
 
     @PostMapping
-    public ResponseEntity<Record> addRecord(@RequestBody Record record) {
-        return ResponseEntity.ok(recordService.addRecord(record));
+    public ResponseEntity<RecordDto> addRecord(@Valid @RequestBody RecordDto record) {
+        return ResponseEntity.ok(recordMapper.toRecordDto(recordService.addRecord(recordMapper.toRecord(record))));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Record> deleteRecord(@PathVariable UUID id) {
+    public ResponseEntity<RecordEntity> deleteRecord(@PathVariable UUID id) {
         recordService.deleteRecordById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<RecordListDto> getRecords(@RequestParam(required = false) UUID userId,
+                                                    @RequestParam(required = false) UUID categoryId) {
+        return ResponseEntity.ok(recordMapper.toRecordListDto(recordService.getRecords(userId, categoryId)));
     }
 }

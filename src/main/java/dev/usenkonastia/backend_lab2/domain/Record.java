@@ -1,4 +1,4 @@
-package dev.usenkonastia.backend_lab2.entity;
+package dev.usenkonastia.backend_lab2.domain;
 
 import lombok.Builder;
 import lombok.Value;
@@ -6,13 +6,12 @@ import lombok.Value;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
-
-@Builder
 @Value
+@Builder
 public class Record {
     UUID id;
-    String userId;
-    String categoryId;
+    UUID userId;
+    UUID categoryId;
     ZonedDateTime date;
     Double expense;
 }
