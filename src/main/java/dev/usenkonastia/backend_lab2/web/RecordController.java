@@ -5,14 +5,17 @@ import dev.usenkonastia.backend_lab2.dto.record.RecordListDto;
 import dev.usenkonastia.backend_lab2.entity.RecordEntity;
 import dev.usenkonastia.backend_lab2.service.RecordService;
 import dev.usenkonastia.backend_lab2.service.mapper.RecordMapper;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
 
 @RestController
+@Validated
 @RequestMapping("/api/v1/record")
 @RequiredArgsConstructor
 public class RecordController {
@@ -25,7 +28,7 @@ public class RecordController {
     }
 
     @PostMapping
-    public ResponseEntity<RecordDto> addRecord(@RequestBody RecordDto record) {
+    public ResponseEntity<RecordDto> addRecord(@Valid @RequestBody RecordDto record) {
         return ResponseEntity.ok(recordMapper.toRecordDto(recordService.addRecord(recordMapper.toRecord(record))));
     }
 

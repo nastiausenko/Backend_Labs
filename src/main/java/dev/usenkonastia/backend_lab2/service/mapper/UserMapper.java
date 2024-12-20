@@ -1,16 +1,11 @@
 package dev.usenkonastia.backend_lab2.service.mapper;
 
 
-import dev.usenkonastia.backend_lab2.domain.Category;
 import dev.usenkonastia.backend_lab2.domain.UserDetails;
-import dev.usenkonastia.backend_lab2.dto.category.CategoryEntryDto;
-import dev.usenkonastia.backend_lab2.dto.category.CategoryListDto;
 import dev.usenkonastia.backend_lab2.dto.user.UserEntryDto;
 import dev.usenkonastia.backend_lab2.dto.user.UserListDto;
 import dev.usenkonastia.backend_lab2.dto.user.request.RegisterRequestDto;
-import dev.usenkonastia.backend_lab2.entity.CategoryEntity;
 import dev.usenkonastia.backend_lab2.entity.UserEntity;
-import dev.usenkonastia.backend_lab2.service.UserService;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -18,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = CategoryMapper.class)
 public interface UserMapper {
 
     @Mapping(source = "id", target = "id")
@@ -31,12 +26,14 @@ public interface UserMapper {
     @Mapping(source = "username", target = "name")
     @Mapping(source = "email", target = "email")
     @Mapping(source = "password", target = "password")
+    @Mapping(target = "categories", ignore = true)
     UserDetails toUser(RegisterRequestDto registerRequestDto);
 
     @Mapping(source = "id", target = "id")
     @Mapping(source = "name", target = "name")
     @Mapping(source = "email", target = "email")
     @Mapping(source = "password", target = "password")
+    @Mapping(source = "categories", target = "categories")
     UserEntity toUserEntity(UserDetails user);
 
     @Mapping(source = "name", target = "username")

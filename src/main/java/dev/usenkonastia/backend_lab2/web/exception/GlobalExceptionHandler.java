@@ -4,22 +4,31 @@ import dev.usenkonastia.backend_lab2.service.exception.CategoryNotFoundException
 import dev.usenkonastia.backend_lab2.service.exception.InvalidArgumentsException;
 import dev.usenkonastia.backend_lab2.service.exception.RecordNotFoundException;
 import dev.usenkonastia.backend_lab2.service.exception.UserNotFoundException;
+import jakarta.persistence.PersistenceException;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.net.URI;
+import java.util.List;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static dev.usenkonastia.backend_lab2.web.exception.ProblemDetailsUtils.getValidationErrorsProblemDetail;
+import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.ProblemDetail.forStatusAndDetail;
 
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(UserNotFoundException.class)
     ProblemDetail handleUserNotFound(UserNotFoundException ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(NOT_FOUND, ex.getMessage());
+        ProblemDetail problemDetail = forStatusAndDetail(NOT_FOUND, ex.getMessage());
         problemDetail.setType(URI.create("user-not-found"));
         problemDetail.setTitle("User Not Found");
         return problemDetail;
@@ -27,7 +36,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(CategoryNotFoundException.class)
     ProblemDetail handleCategoryNotFound(CategoryNotFoundException ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(NOT_FOUND, ex.getMessage());
+        ProblemDetail problemDetail = forStatusAndDetail(NOT_FOUND, ex.getMessage());
         problemDetail.setType(URI.create("category-not-found"));
         problemDetail.setTitle("Category Not Found");
         return problemDetail;
@@ -35,7 +44,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(RecordNotFoundException.class)
     ProblemDetail handleRecordNotFound(RecordNotFoundException ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(NOT_FOUND, ex.getMessage());
+        ProblemDetail problemDetail = forStatusAndDetail(NOT_FOUND, ex.getMessage());
         problemDetail.setType(URI.create("record-not-found"));
         problemDetail.setTitle("Record Not Found");
         return problemDetail;
@@ -43,9 +52,26 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(InvalidArgumentsException.class)
     ProblemDetail handleInvalidArguments(InvalidArgumentsException ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(BAD_REQUEST, ex.getMessage());
+        ProblemDetail problemDetail = forStatusAndDetail(BAD_REQUEST, ex.getMessage());
         problemDetail.setType(URI.create("invalid-arguments"));
         problemDetail.setTitle("Invalid Arguments");
         return problemDetail;
+    }
+
+    @ExceptionHandler(PersistenceException.class)
+    ProblemDetail handlePersistenceException(PersistenceException ex) {
+        ProblemDetail problemDetail = forStatusAndDetail(INTERNAL_SERVER_ERROR, ex.getMessage());
+        problemDetail.setType(URI.create("persistence-exception"));
+        problemDetail.setTitle("Persistence exception");
+        return problemDetail;
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers,
+                                                                  HttpStatusCode status, WebRequest request) {
+        List<FieldError> errors = ex.getBindingResult().getFieldErrors();
+        List<ParamsViolationDetails> validationResponse =
+                errors.stream().map(err -> ParamsViolationDetails.builder().reason(err.getDefaultMessage()).fieldName(err.getField()).build()).toList();
+        return ResponseEntity.status(BAD_REQUEST).body(getValidationErrorsProblemDetail(validationResponse));
     }
 }

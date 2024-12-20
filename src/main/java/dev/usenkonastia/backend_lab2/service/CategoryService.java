@@ -1,7 +1,6 @@
 package dev.usenkonastia.backend_lab2.service;
 
 import dev.usenkonastia.backend_lab2.domain.Category;
-import dev.usenkonastia.backend_lab2.entity.CategoryEntity;
 import dev.usenkonastia.backend_lab2.repository.CategoryRepository;
 import dev.usenkonastia.backend_lab2.repository.UserRepository;
 import dev.usenkonastia.backend_lab2.service.exception.CategoryNotFoundException;

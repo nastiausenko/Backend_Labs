@@ -10,8 +10,8 @@ import java.util.UUID;
 @Builder
 public class Record {
     UUID id;
-    String userId;
-    String categoryId;
+    UUID userId;
+    UUID categoryId;
     ZonedDateTime date;
     Double expense;
 }

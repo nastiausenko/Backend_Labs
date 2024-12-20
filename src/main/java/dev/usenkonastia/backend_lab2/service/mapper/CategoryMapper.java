@@ -11,7 +11,7 @@ import org.mapstruct.Mapping;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = RecordMapper.class)
 public interface CategoryMapper {
     @Mapping(source = "id", target = "id")
     @Mapping(source = "user.id", target = "userId")

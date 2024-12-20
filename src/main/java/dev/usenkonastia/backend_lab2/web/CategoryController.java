@@ -4,13 +4,16 @@ import dev.usenkonastia.backend_lab2.dto.category.CategoryDto;
 import dev.usenkonastia.backend_lab2.dto.category.CategoryListDto;
 import dev.usenkonastia.backend_lab2.service.CategoryService;
 import dev.usenkonastia.backend_lab2.service.mapper.CategoryMapper;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
 @RestController
+@Validated
 @RequestMapping("/api/v1/category")
 @RequiredArgsConstructor
 public class CategoryController {
@@ -33,7 +36,7 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<CategoryDto> createCategory(@RequestBody CategoryDto category) {
+    public ResponseEntity<CategoryDto> createCategory(@Valid @RequestBody CategoryDto category) {
         return ResponseEntity.ok(categoryMapper.toCategoryDto(categoryService.addCategory(categoryMapper.toCategory(category))));
     }
 
