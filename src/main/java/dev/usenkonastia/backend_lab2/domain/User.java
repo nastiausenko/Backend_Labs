@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.UUID;
 
 @Value
-@Builder
-public class UserDetails {
+@Builder(toBuilder = true)
+public class User  {
     UUID id;
     String name;
     String email;

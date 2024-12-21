@@ -1,14 +1,13 @@
 package dev.usenkonastia.backend_lab2.web.exception;
 
-import dev.usenkonastia.backend_lab2.service.exception.CategoryNotFoundException;
-import dev.usenkonastia.backend_lab2.service.exception.InvalidArgumentsException;
-import dev.usenkonastia.backend_lab2.service.exception.RecordNotFoundException;
-import dev.usenkonastia.backend_lab2.service.exception.UserNotFoundException;
+import dev.usenkonastia.backend_lab2.service.exception.*;
 import jakarta.persistence.PersistenceException;
+import org.apache.tomcat.websocket.AuthenticationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -63,6 +62,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ProblemDetail problemDetail = forStatusAndDetail(INTERNAL_SERVER_ERROR, ex.getMessage());
         problemDetail.setType(URI.create("persistence-exception"));
         problemDetail.setTitle("Persistence exception");
+        return problemDetail;
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    ProblemDetail handleForbiddenException(ForbiddenException ex) {
+        ProblemDetail problemDetail = forStatusAndDetail(FORBIDDEN, ex.getMessage());
+        problemDetail.setType(URI.create("forbidden-exception"));
+        problemDetail.setTitle("Forbidden exception");
         return problemDetail;
     }
 
