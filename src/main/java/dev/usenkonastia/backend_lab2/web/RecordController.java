@@ -5,6 +5,7 @@ import dev.usenkonastia.backend_lab2.dto.record.RecordListDto;
 import dev.usenkonastia.backend_lab2.entity.RecordEntity;
 import dev.usenkonastia.backend_lab2.service.RecordService;
 import dev.usenkonastia.backend_lab2.service.mapper.RecordMapper;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import java.util.UUID;
 
 @RestController
 @Validated
+@Tag(name = "Record")
 @RequestMapping("/api/v1/record")
 @RequiredArgsConstructor
 public class RecordController {
