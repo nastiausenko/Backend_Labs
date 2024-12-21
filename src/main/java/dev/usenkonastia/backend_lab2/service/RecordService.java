@@ -6,6 +6,7 @@ import dev.usenkonastia.backend_lab2.repository.CategoryRepository;
 import dev.usenkonastia.backend_lab2.repository.RecordRepository;
 import dev.usenkonastia.backend_lab2.repository.UserRepository;
 import dev.usenkonastia.backend_lab2.service.exception.CategoryNotFoundException;
+import dev.usenkonastia.backend_lab2.service.exception.InvalidArgumentsException;
 import dev.usenkonastia.backend_lab2.service.exception.RecordNotFoundException;
 import dev.usenkonastia.backend_lab2.service.exception.UserNotFoundException;
 import dev.usenkonastia.backend_lab2.service.mapper.RecordMapper;
@@ -60,6 +61,13 @@ public class RecordService {
 
     @Transactional(readOnly = true)
     public List<Record> getRecords(UUID userId, UUID categoryId) {
+        if (userId == null && categoryId == null) {
+            throw new InvalidArgumentsException("Either userId or categoryId must be provided");
+        } else if (userId == null) {
+            categoryRepository.findById(categoryId).orElseThrow(() -> new CategoryNotFoundException(categoryId));
+        } else {
+            userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+        }
         return recordMapper.toRecordList(recordRepository.findByUserIdAndCategoryId(userId, categoryId));
     }
 }
