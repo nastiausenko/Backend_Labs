@@ -24,5 +24,5 @@ docker-compose up --build
 
 [Swagger UI](http://localhost:8080/swagger-ui/index.html#/)
 
-### [Посилання на деплой](https://backend-labs-ggwf.onrender.com/api/v1)
+### [Посилання на деплой](https://backend-labs-r2oh.onrender.com/api/v1)
 
