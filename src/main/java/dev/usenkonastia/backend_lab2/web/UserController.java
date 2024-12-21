@@ -4,6 +4,7 @@ import dev.usenkonastia.backend_lab2.dto.user.UserListDto;
 import dev.usenkonastia.backend_lab2.dto.user.request.RegisterRequestDto;
 import dev.usenkonastia.backend_lab2.service.UserService;
 import dev.usenkonastia.backend_lab2.service.mapper.UserMapper;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import java.util.UUID;
 
 @RestController
 @Validated
+@Tag(name = "User")
 @RequestMapping("/api/v1/user")
 @RequiredArgsConstructor
 public class UserController {

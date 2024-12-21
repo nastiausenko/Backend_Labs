@@ -4,6 +4,7 @@ import dev.usenkonastia.backend_lab2.dto.category.CategoryDto;
 import dev.usenkonastia.backend_lab2.dto.category.CategoryListDto;
 import dev.usenkonastia.backend_lab2.service.CategoryService;
 import dev.usenkonastia.backend_lab2.service.mapper.CategoryMapper;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import java.util.UUID;
 
 @RestController
 @Validated
+@Tag(name = "Category")
 @RequestMapping("/api/v1/category")
 @RequiredArgsConstructor
 public class CategoryController {
