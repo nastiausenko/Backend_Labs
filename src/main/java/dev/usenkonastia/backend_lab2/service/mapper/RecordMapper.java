@@ -21,15 +21,13 @@ public interface RecordMapper {
     Record toRecord(RecordEntity recordEntity);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(source = "userId", target = "userId")
+    @Mapping(target = "userId", ignore = true)
     @Mapping(source = "categoryId", target = "categoryId")
-    @Mapping(source = "date", target = "date")
+    @Mapping(target = "date", ignore = true)
     @Mapping(source = "expense", target = "expense")
     Record toRecord(RecordDto recordDto);
 
-    @Mapping(source = "userId", target = "userId")
     @Mapping(source = "categoryId", target = "categoryId")
-    @Mapping(source = "date", target = "date")
     @Mapping(source = "expense", target = "expense")
     RecordDto toRecordDto(Record recordById);
 

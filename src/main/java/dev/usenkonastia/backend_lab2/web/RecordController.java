@@ -5,6 +5,7 @@ import dev.usenkonastia.backend_lab2.dto.record.RecordListDto;
 import dev.usenkonastia.backend_lab2.entity.RecordEntity;
 import dev.usenkonastia.backend_lab2.service.RecordService;
 import dev.usenkonastia.backend_lab2.service.mapper.RecordMapper;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
-
+@SecurityRequirement(name = "JWT")
 @RestController
 @Validated
 @Tag(name = "Record")
