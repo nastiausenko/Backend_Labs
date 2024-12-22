@@ -23,7 +23,6 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
 @RequiredArgsConstructor
 @EnableWebSecurity
 public class SecurityConfig {
-
     private final JwtFilter jwtFilter;
     private static final String API_V1_CATEGORY = "/api/v1/category/**";
     private static final String API_V1_RECORD = "/api/v1/record/**";
@@ -43,6 +42,7 @@ public class SecurityConfig {
                         .requestMatchers(antMatcher(API_V1_RECORD)).authenticated()
                         .anyRequest().permitAll()
                 )
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(new CustomAuthenticationEntryPoint()))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
