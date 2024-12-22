@@ -36,13 +36,14 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, API_V1_USER).permitAll()
-                        .requestMatchers(HttpMethod.GET,"/api/v1/category/public").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/v1/category/public").anonymous()
                         .requestMatchers(API_V1_CATEGORY).authenticated()
                         .requestMatchers(API_V1_USER).authenticated()
                         .requestMatchers(antMatcher(API_V1_RECORD)).authenticated()
-                        .anyRequest().permitAll()
+                        .anyRequest().anonymous()
                 )
-                .exceptionHandling(exception -> exception.authenticationEntryPoint(new CustomAuthenticationEntryPoint()))
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(new CustomAuthenticationEntryPoint()))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }

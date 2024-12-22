@@ -10,6 +10,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,11 +57,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public User getUserById(UUID id) {
-        try {
             return userMapper.toUser(userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id)));
-        } catch (Exception e) {
-            throw new PersistenceException(e);
-        }
     }
 
     @Transactional(readOnly = true)
@@ -72,9 +70,14 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteUser(UUID id) {
+    public void deleteAccount() {
         try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String email = auth.getName();
+            UUID id = userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new).getId();
             userRepository.deleteById(id);
+        } catch (UserNotFoundException e) {
+            throw new UserNotFoundException();
         } catch (Exception e) {
             throw new PersistenceException(e);
         }

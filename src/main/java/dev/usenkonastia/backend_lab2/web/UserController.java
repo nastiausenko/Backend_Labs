@@ -49,9 +49,10 @@ public class UserController {
         return ResponseEntity.ok(userMapper.toRegisterUserDto(userService.getUserById(id)));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUserById(@PathVariable UUID id) {
-        userService.deleteUser(id);
+    @SecurityRequirement(name = "JWT")
+    @DeleteMapping
+    public ResponseEntity<Void> deleteAccount() {
+        userService.deleteAccount();
         return ResponseEntity.noContent().build();
     }
 }
