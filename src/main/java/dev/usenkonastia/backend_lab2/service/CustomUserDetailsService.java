@@ -1,6 +1,7 @@
 package dev.usenkonastia.backend_lab2.service;
 
 import dev.usenkonastia.backend_lab2.repository.UserRepository;
+import dev.usenkonastia.backend_lab2.service.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -22,6 +23,6 @@ public class CustomUserDetailsService implements UserDetailsService {
                         .password(userEntity.getPassword())
                         .authorities("USER")
                         .build())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+                .orElseThrow(() -> new UserNotFoundException(email));
     }
 }
