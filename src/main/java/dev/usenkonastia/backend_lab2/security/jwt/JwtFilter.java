@@ -2,6 +2,7 @@ package dev.usenkonastia.backend_lab2.security.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.usenkonastia.backend_lab2.service.CustomUserDetailsService;
+import dev.usenkonastia.backend_lab2.service.exception.UserNotFoundException;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -26,8 +27,8 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 @Component
 @AllArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
-    private JwtUtil jwtUtil;
-    private CustomUserDetailsService userDetailsService;
+    private final JwtUtil jwtUtil;
+    private final CustomUserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -54,21 +55,30 @@ public class JwtFilter extends OncePerRequestFilter {
 
             filterChain.doFilter(request, response);
         } catch (ExpiredJwtException ex) {
-            response.setContentType("application/json");
-            response.setStatus(UNAUTHORIZED.value());
-            ObjectMapper mapper = new ObjectMapper();
-            String exMessage = mapper.writeValueAsString(createProblemDetail(ex, request));
-            response.getWriter().write(exMessage);
+            handleException(response, HttpStatus.UNAUTHORIZED, "Expired JWT Token", ex.getMessage(), request);
+        } catch (UserNotFoundException ex) {
+            handleException(response, HttpStatus.NOT_FOUND, "User Not Found", ex.getMessage(), request);
+        } catch (Exception ex) {
+            handleException(response, HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", ex.getMessage(), request);
         }
     }
 
-    private ProblemDetail createProblemDetail(ExpiredJwtException ex, HttpServletRequest request) {
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "The token has expired.");
-        problemDetail.setType(URI.create("token-expired"));
-        problemDetail.setTitle("Expired JWT Token");
-        problemDetail.setDetail(ex.getMessage());
+    private void handleException(HttpServletResponse response, HttpStatus status, String title, String detail, HttpServletRequest request) throws IOException {
+        response.setContentType("application/json");
+        response.setStatus(status.value());
+        ObjectMapper mapper = new ObjectMapper();
+        ProblemDetail problemDetail = createProblemDetail(status, title, detail, request);
+        String responseBody = mapper.writeValueAsString(problemDetail);
+        response.getWriter().write(responseBody);
+    }
+
+    private ProblemDetail createProblemDetail(HttpStatus status, String title, String detail, HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, detail);
+        problemDetail.setType(URI.create(title.toLowerCase().replace(" ", "-")));
+        problemDetail.setTitle(title);
         problemDetail.setInstance(URI.create(request.getRequestURI()));
         problemDetail.setProperty("timestamp", ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
         return problemDetail;
     }
 }
+

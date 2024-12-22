@@ -74,10 +74,8 @@ public class UserService {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String email = auth.getName();
-            UUID id = userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new).getId();
+            UUID id = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email)).getId();
             userRepository.deleteById(id);
-        } catch (UserNotFoundException e) {
-            throw new UserNotFoundException();
         } catch (Exception e) {
             throw new PersistenceException(e);
         }
