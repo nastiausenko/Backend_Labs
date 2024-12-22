@@ -22,8 +22,6 @@ import java.net.URI;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
-
 @Component
 @AllArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
@@ -45,6 +43,9 @@ public class JwtFilter extends OncePerRequestFilter {
             }
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                if (userDetailsService.loadUserByUsername(username) == null) {
+                    throw new UserNotFoundException(username);
+                }
                 if (jwtUtil.isTokenValid(jwtToken, username)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             username, null, userDetailsService.loadUserByUsername(username).getAuthorities());
@@ -58,8 +59,6 @@ public class JwtFilter extends OncePerRequestFilter {
             handleException(response, HttpStatus.UNAUTHORIZED, "Expired JWT Token", ex.getMessage(), request);
         } catch (UserNotFoundException ex) {
             handleException(response, HttpStatus.NOT_FOUND, "User Not Found", ex.getMessage(), request);
-        } catch (Exception ex) {
-            handleException(response, HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", ex.getMessage(), request);
         }
     }
 
