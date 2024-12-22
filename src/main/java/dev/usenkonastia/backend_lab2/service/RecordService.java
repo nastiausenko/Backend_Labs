@@ -29,16 +29,11 @@ public class RecordService {
 
     @Transactional(readOnly = true)
     public Record getRecordById(UUID id) {
-        try {
             return recordMapper.toRecord(recordRepository.findById(id).orElseThrow(() -> new RecordNotFoundException(id)));
-        } catch (Exception e) {
-            throw new PersistenceException(e);
-        }
     }
 
     @Transactional
     public Record addRecord(Record record) {
-        try {
             RecordEntity recordEntity = recordMapper.toRecordEntity(record);
             UUID userId = getCurrentUser();
             UUID categoryId = recordEntity.getCategory().getId();
@@ -50,9 +45,6 @@ public class RecordService {
                     .build();
             categoryRepository.findById(categoryId).orElseThrow(() -> new CategoryNotFoundException(categoryId));
             return recordMapper.toRecord(recordRepository.save(recordMapper.toRecordEntity(record)));
-        } catch (Exception e) {
-            throw new PersistenceException(e);
-        }
     }
 
     @Transactional
@@ -66,6 +58,8 @@ public class RecordService {
                 throw new ForbiddenException();
             }
             recordRepository.deleteById(id);
+        } catch (ForbiddenException e) {
+            throw new ForbiddenException();
         } catch (Exception e) {
             throw new PersistenceException(e);
         }

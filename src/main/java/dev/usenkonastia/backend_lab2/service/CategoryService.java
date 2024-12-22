@@ -75,15 +75,15 @@ public class CategoryService {
                 throw new ForbiddenException();
             }
             categoryRepository.deleteById(id);
+        } catch (ForbiddenException e) {
+            throw new ForbiddenException();
         } catch (Exception e) {
             throw new PersistenceException(e);
         }
     }
 
     private boolean doesHaveRights(UUID id) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
-        UUID currentUserId = userRepository.findByEmail(email).get().getId();
+        UUID currentUserId = getCurrentUser();
         UUID userId = userRepository.findUserIdByCategoryId(id);
         if (userId == null) {
             throw new CategoryNotFoundException(id);
