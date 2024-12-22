@@ -1,6 +1,6 @@
 package dev.usenkonastia.backend_lab2.dto.category;
 
-import dev.usenkonastia.backend_lab2.dto.record.RecordDto;
+import dev.usenkonastia.backend_lab2.dto.record.RecordEntryDto;
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
@@ -16,5 +16,5 @@ public class CategoryEntryDto {
     UUID userId;
     String categoryName;
     Boolean isPublic;
-    List<RecordDto> records;
+    List<RecordEntryDto> records;
 }

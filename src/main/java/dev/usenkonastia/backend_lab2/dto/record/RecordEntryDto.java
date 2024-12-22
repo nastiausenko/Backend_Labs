@@ -14,8 +14,8 @@ import java.util.UUID;
 @Jacksonized
 public class RecordEntryDto {
     UUID id;
-    Double expense;
-    UUID categoryId;
-    ZonedDateTime date;
     UUID userId;
+    UUID categoryId;
+    Double expense;
+    ZonedDateTime date;
 }

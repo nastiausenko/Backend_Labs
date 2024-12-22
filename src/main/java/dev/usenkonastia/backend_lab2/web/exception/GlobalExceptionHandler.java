@@ -1,14 +1,16 @@
 package dev.usenkonastia.backend_lab2.web.exception;
 
-import dev.usenkonastia.backend_lab2.service.exception.CategoryNotFoundException;
-import dev.usenkonastia.backend_lab2.service.exception.InvalidArgumentsException;
-import dev.usenkonastia.backend_lab2.service.exception.RecordNotFoundException;
-import dev.usenkonastia.backend_lab2.service.exception.UserNotFoundException;
+import dev.usenkonastia.backend_lab2.service.exception.*;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.persistence.PersistenceException;
+import jakarta.servlet.http.HttpServletRequest;
+import org.apache.tomcat.websocket.AuthenticationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -66,6 +68,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return problemDetail;
     }
 
+    @ExceptionHandler(ForbiddenException.class)
+    ProblemDetail handleForbiddenException(ForbiddenException ex) {
+        ProblemDetail problemDetail = forStatusAndDetail(FORBIDDEN, ex.getMessage());
+        problemDetail.setType(URI.create("forbidden-exception"));
+        problemDetail.setTitle("Forbidden exception");
+        return problemDetail;
+    }
+
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers,
                                                                   HttpStatusCode status, WebRequest request) {
@@ -73,5 +83,21 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         List<ParamsViolationDetails> validationResponse =
                 errors.stream().map(err -> ParamsViolationDetails.builder().reason(err.getDefaultMessage()).fieldName(err.getField()).build()).toList();
         return ResponseEntity.status(BAD_REQUEST).body(getValidationErrorsProblemDetail(validationResponse));
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    ProblemDetail handleAuthenticationException(AuthenticationException ex) {
+        ProblemDetail problemDetail = forStatusAndDetail(UNAUTHORIZED, ex.getMessage());
+        problemDetail.setType(URI.create("authentication-exception"));
+        problemDetail.setTitle("Authentication exception");
+        return problemDetail;
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    ProblemDetail handleBadCredentialsException(BadCredentialsException ex) {
+        ProblemDetail problemDetail = forStatusAndDetail(UNAUTHORIZED, ex.getMessage());
+        problemDetail.setType(URI.create("bad-credentials-exception"));
+        problemDetail.setTitle("Bad credentials exception");
+        return problemDetail;
     }
 }
