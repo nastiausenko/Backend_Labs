@@ -50,8 +50,6 @@ public class UserService {
             return jwtUtil.generateToken(user.getEmail());
         } catch (BadCredentialsException e) {
             throw new BadCredentialsException("Wrong email or password");
-        } catch (Exception e) {
-            throw new PersistenceException(e);
         }
     }
 
@@ -76,7 +74,7 @@ public class UserService {
             String email = auth.getName();
             UUID id = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email)).getId();
             userRepository.deleteById(id);
-        } catch (Exception e) {
+        } catch (PersistenceException e) {
             throw new PersistenceException(e);
         }
     }
