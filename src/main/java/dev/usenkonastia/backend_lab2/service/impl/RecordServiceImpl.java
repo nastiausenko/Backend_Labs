@@ -2,13 +2,13 @@ package dev.usenkonastia.backend_lab2.service.impl;
 
 import dev.usenkonastia.backend_lab2.domain.Record;
 import dev.usenkonastia.backend_lab2.entity.RecordEntity;
+import dev.usenkonastia.backend_lab2.entity.UserEntity;
 import dev.usenkonastia.backend_lab2.repository.CategoryRepository;
 import dev.usenkonastia.backend_lab2.repository.RecordRepository;
 import dev.usenkonastia.backend_lab2.repository.UserRepository;
 import dev.usenkonastia.backend_lab2.service.RecordService;
 import dev.usenkonastia.backend_lab2.service.exception.*;
 import dev.usenkonastia.backend_lab2.service.mapper.RecordMapper;
-import jakarta.persistence.PersistenceException;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -53,20 +53,16 @@ public class RecordServiceImpl implements RecordService {
     @Override
     @Transactional
     public void deleteRecordById(UUID id) {
-        try {
-            boolean isExist = recordRepository.existsById(id);
-            if (!isExist) {
+            UUID ownerId = userRepository.findUserIdByRecordId(id);
+            if (ownerId == null) {
                 return;
             }
-            if (!doesHaveRights(id)) {
+
+            UUID currentUserId = getCurrentUser();
+            if (!ownerId.equals(currentUserId)) {
                 throw new ForbiddenException();
             }
             recordRepository.deleteById(id);
-        } catch (ForbiddenException e) {
-            throw new ForbiddenException();
-        } catch (Exception e) {
-            throw new PersistenceException(e);
-        }
     }
 
     @Override
@@ -85,14 +81,8 @@ public class RecordServiceImpl implements RecordService {
     private UUID getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
-        return userRepository.findByEmail(email).get().getId();
-    }
-
-    private boolean doesHaveRights(UUID id) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
-        UUID currentUserId = userRepository.findByEmail(email).get().getId();
-        UUID userId = userRepository.findUserIdByRecordId(id);
-        return userId.equals(currentUserId);
+        return userRepository.findByEmail(email)
+                .map(UserEntity::getId)
+                .orElseThrow(() -> new UserNotFoundException(email));
     }
 }

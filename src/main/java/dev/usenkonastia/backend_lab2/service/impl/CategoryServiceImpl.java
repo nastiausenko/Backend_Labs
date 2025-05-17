@@ -1,16 +1,19 @@
 package dev.usenkonastia.backend_lab2.service.impl;
 
 import dev.usenkonastia.backend_lab2.domain.Category;
+import dev.usenkonastia.backend_lab2.entity.UserEntity;
 import dev.usenkonastia.backend_lab2.repository.CategoryRepository;
 import dev.usenkonastia.backend_lab2.repository.UserRepository;
 import dev.usenkonastia.backend_lab2.service.CategoryService;
 import dev.usenkonastia.backend_lab2.service.exception.CategoryNotFoundException;
 import dev.usenkonastia.backend_lab2.service.exception.ForbiddenException;
+import dev.usenkonastia.backend_lab2.service.exception.UserNotFoundException;
 import dev.usenkonastia.backend_lab2.service.mapper.CategoryMapper;
 import jakarta.persistence.PersistenceException;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,18 +30,15 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public Category addCategory(Category category) {
-        try {
-            UUID currentUserId = getCurrentUser();
-            category = Category.builder()
-                    .categoryName(category.getCategoryName())
-                    .userId(currentUserId)
-                    .isPublic(category.getIsPublic())
-                    .records(category.getRecords())
-                    .build();
-            return categoryMapper.toCategory(categoryRepository.save(categoryMapper.toCategoryEntity(category)));
-        } catch (Exception e) {
-            throw new PersistenceException(e);
-        }
+        UUID currentUserId = getCurrentUser();
+        category = Category.builder()
+                .categoryName(category.getCategoryName())
+                .userId(currentUserId)
+                .isPublic(category.getIsPublic())
+                .records(category.getRecords())
+                .build();
+        return categoryMapper.toCategory(categoryRepository.save(categoryMapper.toCategoryEntity(category)));
+
     }
 
     @Override
@@ -50,55 +50,37 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional(readOnly = true)
     public List<Category> getPublicCategories() {
-        try {
-            return categoryMapper.toCategoryList(categoryRepository.findByIsPublicTrue());
-        } catch (Exception e) {
-            throw new PersistenceException(e);
-        }
+        return categoryMapper.toCategoryList(categoryRepository.findByIsPublicTrue());
+
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Category> getUserCategories() {
-        try {
-            UUID currentUserId = getCurrentUser();
-            return categoryMapper.toCategoryList(categoryRepository.findByUserId(currentUserId));
-        } catch (Exception e) {
-            throw new PersistenceException(e);
-        }
+        UUID currentUserId = getCurrentUser();
+        return categoryMapper.toCategoryList(categoryRepository.findByUserId(currentUserId));
     }
 
     @Override
     @Transactional
     public void deleteCategory(UUID id) {
-        try {
-            boolean categoryExists = categoryRepository.existsById(id);
-            if (!categoryExists) {
-                return;
-            }
-            if (!doesHaveRights(id)) {
-                throw new ForbiddenException();
-            }
-            categoryRepository.deleteById(id);
-        } catch (ForbiddenException e) {
-            throw new ForbiddenException();
-        } catch (Exception e) {
-            throw new PersistenceException(e);
+        UUID ownerId = userRepository.findUserIdByCategoryId(id);
+        if (ownerId == null) {
+            return;
         }
-    }
 
-    private boolean doesHaveRights(UUID id) {
         UUID currentUserId = getCurrentUser();
-        UUID userId = userRepository.findUserIdByCategoryId(id);
-        if (userId == null) {
-            throw new CategoryNotFoundException(id);
+        if (!ownerId.equals(currentUserId)) {
+            throw new ForbiddenException();
         }
-        return userId.equals(currentUserId);
+        categoryRepository.deleteById(id);
     }
 
     private UUID getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
-        return userRepository.findByEmail(email).get().getId();
+        return userRepository.findByEmail(email)
+                .map(UserEntity::getId)
+                .orElseThrow(() -> new UserNotFoundException(email));
     }
 }

@@ -6,10 +6,8 @@ import dev.usenkonastia.backend_lab2.security.jwt.JwtUtil;
 import dev.usenkonastia.backend_lab2.service.UserService;
 import dev.usenkonastia.backend_lab2.service.exception.UserNotFoundException;
 import dev.usenkonastia.backend_lab2.service.mapper.UserMapper;
-import jakarta.persistence.PersistenceException;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,52 +29,36 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     public String registerUser(User user) {
-        try {
-            User newUser = User.builder()
-                    .name(user.getName())
-                    .email(user.getEmail())
-                    .password(passwordEncoder.encode(user.getPassword()))
-                    .build();
-            userMapper.toUser(userRepository.save(userMapper.toUserEntity(newUser)));
-            return jwtUtil.generateToken(newUser.getEmail());
-        } catch (Exception e) {
-            throw new PersistenceException(e);
-        }
+        User newUser = User.builder()
+                .name(user.getName())
+                .email(user.getEmail())
+                .password(passwordEncoder.encode(user.getPassword()))
+                .build();
+        userMapper.toUser(userRepository.save(userMapper.toUserEntity(newUser)));
+        return jwtUtil.generateToken(newUser.getEmail());
     }
 
     @Transactional
     public String loginUser(User user) {
-        try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
-            return jwtUtil.generateToken(user.getEmail());
-        } catch (BadCredentialsException e) {
-            throw new BadCredentialsException("Wrong email or password");
-        }
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
+        return jwtUtil.generateToken(user.getEmail());
     }
 
     @Transactional(readOnly = true)
     public User getUserById(UUID id) {
-            return userMapper.toUser(userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id)));
+        return userMapper.toUser(userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id)));
     }
 
     @Transactional(readOnly = true)
     public List<User> getUsers() {
-        try {
-            return userMapper.toUserList(userRepository.findAll().iterator());
-        } catch (Exception e) {
-            throw new PersistenceException(e);
-        }
+        return userMapper.toUserList(userRepository.findAll().iterator());
     }
 
     @Transactional
     public void deleteAccount() {
-        try {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            String email = auth.getName();
-            UUID id = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email)).getId();
-            userRepository.deleteById(id);
-        } catch (PersistenceException e) {
-            throw new PersistenceException(e);
-        }
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+        UUID id = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email)).getId();
+        userRepository.deleteById(id);
     }
 }
