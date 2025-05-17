@@ -1,7 +1,6 @@
 package dev.usenkonastia.backend_lab2.security.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.usenkonastia.backend_lab2.service.CustomUserDetailsService;
 import dev.usenkonastia.backend_lab2.service.exception.UserNotFoundException;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
