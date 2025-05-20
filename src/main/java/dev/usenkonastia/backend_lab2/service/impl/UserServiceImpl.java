@@ -4,6 +4,7 @@ import dev.usenkonastia.backend_lab2.domain.User;
 import dev.usenkonastia.backend_lab2.repository.UserRepository;
 import dev.usenkonastia.backend_lab2.security.jwt.JwtUtil;
 import dev.usenkonastia.backend_lab2.service.UserService;
+import dev.usenkonastia.backend_lab2.service.exception.EmailAlreadyExistsException;
 import dev.usenkonastia.backend_lab2.service.exception.UserNotFoundException;
 import dev.usenkonastia.backend_lab2.service.mapper.UserMapper;
 import lombok.AllArgsConstructor;
@@ -29,6 +30,10 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     public String registerUser(User user) {
+        userRepository.findByEmail(user.getEmail()).ifPresent(existingUser -> {
+            throw new EmailAlreadyExistsException(user.getEmail());
+        });
+
         User newUser = User.builder()
                 .name(user.getName())
                 .email(user.getEmail())
@@ -58,7 +63,7 @@ public class UserServiceImpl implements UserService {
     public void deleteAccount() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
-        UUID id = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email)).getId();
-        userRepository.deleteById(id);
+
+        userRepository.findByEmail(email).ifPresent(user -> userRepository.deleteById(user.getId()));
     }
 }

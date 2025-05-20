@@ -57,6 +57,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return problemDetail;
     }
 
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    ProblemDetail handleEmailAlreadyExistException(EmailAlreadyExistsException ex) {
+        ProblemDetail problemDetail = forStatusAndDetail(BAD_REQUEST, ex.getMessage());
+        problemDetail.setType(URI.create("email-already-exists"));
+        problemDetail.setTitle("Email Already Exists");
+        return problemDetail;
+    }
+
     @ExceptionHandler(PersistenceException.class)
     ProblemDetail handlePersistenceException(PersistenceException ex) {
         ProblemDetail problemDetail = forStatusAndDetail(INTERNAL_SERVER_ERROR, ex.getMessage());
