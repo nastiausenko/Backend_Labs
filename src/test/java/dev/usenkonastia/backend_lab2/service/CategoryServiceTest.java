@@ -7,13 +7,14 @@ import dev.usenkonastia.backend_lab2.repository.CategoryRepository;
 import dev.usenkonastia.backend_lab2.repository.UserRepository;
 import dev.usenkonastia.backend_lab2.service.exception.CategoryNotFoundException;
 import dev.usenkonastia.backend_lab2.service.exception.ForbiddenException;
+import dev.usenkonastia.backend_lab2.service.impl.CategoryServiceImpl;
 import dev.usenkonastia.backend_lab2.service.mapper.CategoryMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -26,20 +27,20 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
 @DisplayName("Category Service Tests")
+@SpringBootTest(classes = CategoryServiceImpl.class)
 public class CategoryServiceTest {
 
-    @Mock
+    @MockBean
     private CategoryRepository categoryRepository;
 
-    @Mock
+    @MockBean
     private UserRepository userRepository;
 
-    @Mock
+    @MockBean
     private CategoryMapper categoryMapper;
 
-    @InjectMocks
+    @Autowired
     private CategoryService categoryService;
 
     private Category category;
