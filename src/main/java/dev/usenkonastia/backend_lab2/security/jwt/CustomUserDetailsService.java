@@ -1,4 +1,4 @@
-package dev.usenkonastia.backend_lab2.service;
+package dev.usenkonastia.backend_lab2.security.jwt;
 
 import dev.usenkonastia.backend_lab2.repository.UserRepository;
 import dev.usenkonastia.backend_lab2.service.exception.UserNotFoundException;
