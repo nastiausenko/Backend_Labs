@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-@Component("nbu")
+@Component
 @RequiredArgsConstructor
 public class NbuConversionStrategy implements CurrencyConversionStrategy {
 
