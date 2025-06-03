@@ -12,7 +12,7 @@ public class CurrencyConversionContext {
     private final Map<String, CurrencyConversionStrategy> strategies;
     
     public double convert(double amount, String from, String to, String bankProvider) {
-        CurrencyConversionStrategy strategy = strategies.get(bankProvider + "ConversionStrategy");
+        CurrencyConversionStrategy strategy = strategies.get(bankProvider.toLowerCase());
         
         if (strategy == null) {
             throw new IllegalArgumentException("Unknown bank provider: " + bankProvider);

@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-@Component
+@Component("monobank")
 @RequiredArgsConstructor
-public class MonoConversionStrategy implements CurrencyConversionStrategy {
+public class MonobankConversionStrategy implements CurrencyConversionStrategy {
 
     private final MonobankClient monobankClient;
 
