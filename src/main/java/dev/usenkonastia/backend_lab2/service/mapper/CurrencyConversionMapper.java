@@ -1,4 +1,4 @@
-package dev.usenkonastia.backend_lab2.service.impl;
+package dev.usenkonastia.backend_lab2.service.mapper;
 
 import dev.usenkonastia.backend_lab2.domain.currency.CurrencyConversion;
 import dev.usenkonastia.backend_lab2.dto.currency.CurrencyConversionRequestDto;

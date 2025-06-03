@@ -1,6 +1,7 @@
 package dev.usenkonastia.backend_lab2.service.strategy;
 
 import dev.usenkonastia.backend_lab2.dto.currency.PrivatbankCurrencyDto;
+import dev.usenkonastia.backend_lab2.service.exception.CurrencyConversionException;
 import dev.usenkonastia.backend_lab2.service.strategy.client.PrivatbankClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +37,7 @@ public class PrivatbankConversionStrategy implements CurrencyConversionStrategy 
                 .filter(r -> r.getCcy().equalsIgnoreCase(to) && r.getBase_ccy().equalsIgnoreCase("UAH"))
                 .findFirst()
                 .map(rate -> amount / rate.getBuy())
-                .orElseThrow(() -> new RuntimeException("Rate not found for currency: " + to));
+                .orElseThrow(() -> new CurrencyConversionException(to));
     }
 
     private double convertToUah(double amount, String from, List<PrivatbankCurrencyDto> rates) {
@@ -44,6 +45,6 @@ public class PrivatbankConversionStrategy implements CurrencyConversionStrategy 
                 .filter(r -> r.getCcy().equalsIgnoreCase(from) && r.getBase_ccy().equalsIgnoreCase("UAH"))
                 .findFirst()
                 .map(rate -> amount * rate.getSale())
-                .orElseThrow(() -> new RuntimeException("Rate not found for currency: " + from));
+                .orElseThrow(() -> new CurrencyConversionException(from));
     }
 }

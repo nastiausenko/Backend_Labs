@@ -5,7 +5,7 @@ import dev.usenkonastia.backend_lab2.dto.currency.CurrencyConversionRequestDto;
 import dev.usenkonastia.backend_lab2.dto.currency.CurrencyConversionResponseDto;
 
 import dev.usenkonastia.backend_lab2.service.CurrencyConversionService;
-import dev.usenkonastia.backend_lab2.service.impl.CurrencyConversionMapper;
+import dev.usenkonastia.backend_lab2.service.mapper.CurrencyConversionMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
