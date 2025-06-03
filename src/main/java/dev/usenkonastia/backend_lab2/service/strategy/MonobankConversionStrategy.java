@@ -26,7 +26,7 @@ public class MonobankConversionStrategy implements CurrencyConversionStrategy {
         int fromCode = getNumericCode(from);
         int toCode = getNumericCode(to);
 
-        List<MonobankCurrencyDto> rates = monobankClient.getCurrencyRates();
+        List<MonobankCurrencyDto> rates = monobankClient.getRates();
 
         if (fromCode == 980) {
             return convertFromUah(amount, toCode, rates);
