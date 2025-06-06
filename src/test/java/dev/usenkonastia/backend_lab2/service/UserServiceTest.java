@@ -82,7 +82,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void testRegisterUserAlreadyExists() {
+    void testRegisterUser_AlreadyExists() {
         when(userRepository.findByEmail(user.getEmail()))
                 .thenReturn(Optional.of(userEntity));
 
@@ -118,7 +118,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void testGetUserByIdNotFound() {
+    void testGetUserById_NotFound() {
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.getUserById(userId))
@@ -152,7 +152,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void testDeleteAccountUserNotFound() {
+    void testDeleteAccount_UserNotFound() {
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken("missing@example.com", null)
         );

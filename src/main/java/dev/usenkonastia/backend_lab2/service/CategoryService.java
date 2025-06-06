@@ -11,4 +11,5 @@ public interface CategoryService {
     List<Category> getPublicCategories();
     List<Category> getUserCategories();
     void deleteCategory(UUID id);
+    void validateCategoryExists(UUID categoryId);
 }

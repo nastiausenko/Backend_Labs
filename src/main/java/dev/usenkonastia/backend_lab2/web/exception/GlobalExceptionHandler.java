@@ -105,4 +105,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         problemDetail.setTitle("Bad credentials exception");
         return problemDetail;
     }
+
+    @ExceptionHandler(CurrencyConversionException.class)
+    ProblemDetail handleCurrencyConversionException(CurrencyConversionException ex) {
+        ProblemDetail problemDetail = forStatusAndDetail(BAD_REQUEST, ex.getMessage());
+        problemDetail.setType(URI.create("currency-conversion-error"));
+        problemDetail.setTitle("Currency Conversion Error");
+        return problemDetail;
+    }
 }

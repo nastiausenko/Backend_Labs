@@ -115,7 +115,7 @@ public class RecordControllerIT extends AbstractIT {
     @Test
     @WithMockUser(username = SECOND_USER_EMAIL)
     @DisplayName("Delete other user's record by ID")
-    void testDeleteRecordForbidden() throws Exception {
+    void testDeleteRecord_Forbidden() throws Exception {
         saveUser(SECOND_USER_EMAIL);
         RecordEntity saved = saveRecord(defaultUser, defaultCategory, 100.0);
 

@@ -66,4 +66,8 @@ public class UserServiceImpl implements UserService {
 
         userRepository.findByEmail(email).ifPresent(user -> userRepository.deleteById(user.getId()));
     }
+
+    public void validateUserExists(UUID userId) {
+        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+    }
 }

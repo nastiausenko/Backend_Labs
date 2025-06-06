@@ -96,7 +96,7 @@ public class UserControllerIT extends AbstractIT {
 
     @Test
     @DisplayName("Login fails with bad credentials")
-    void testLoginBadCredentials() throws Exception {
+    void testLogin_BadCredentials() throws Exception {
         userRepository.save(UserEntity.builder()
                 .id(UUID.randomUUID())
                 .email(EMAIL)

@@ -4,9 +4,9 @@ import dev.usenkonastia.backend_lab2.domain.Record;
 import dev.usenkonastia.backend_lab2.entity.CategoryEntity;
 import dev.usenkonastia.backend_lab2.entity.RecordEntity;
 import dev.usenkonastia.backend_lab2.entity.UserEntity;
-import dev.usenkonastia.backend_lab2.repository.CategoryRepository;
 import dev.usenkonastia.backend_lab2.repository.RecordRepository;
-import dev.usenkonastia.backend_lab2.repository.UserRepository;
+import dev.usenkonastia.backend_lab2.security.AccessValidator;
+import dev.usenkonastia.backend_lab2.security.SecurityContextService;
 import dev.usenkonastia.backend_lab2.service.exception.*;
 import dev.usenkonastia.backend_lab2.service.impl.RecordServiceImpl;
 import dev.usenkonastia.backend_lab2.service.mapper.RecordMapper;
@@ -16,16 +16,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @DisplayName("Record Service Tests")
@@ -36,54 +33,54 @@ public class RecordServiceTest {
     private RecordRepository recordRepository;
 
     @MockBean
-    private CategoryRepository categoryRepository;
+    private CategoryService categoryService;
 
     @MockBean
-    private UserRepository userRepository;
+    private UserService userService;
 
     @MockBean
     private RecordMapper recordMapper;
+
+    @MockBean
+    private SecurityContextService securityContextService;
+
+    @MockBean
+    private AccessValidator accessValidator;
 
     @Autowired
     private RecordService recordService;
 
     private Record record;
-    private CategoryEntity categoryEntity;
     private RecordEntity recordEntity;
-    private UserEntity userEntity;
+    private UUID userId;
+    private UUID categoryId;
 
     @BeforeEach
     void setUp() {
+        userId = UUID.randomUUID();
+        categoryId = UUID.randomUUID();
 
-
-        userEntity = UserEntity.builder().id(UUID.randomUUID()).email("email@example.com").build();
-        categoryEntity = CategoryEntity.builder()
-                .id(UUID.randomUUID())
-                .user(userEntity)
-                .build();
         record = Record.builder()
                 .id(UUID.randomUUID())
-                .userId(userEntity.getId())
-                .categoryId(UUID.randomUUID())
+                .userId(userId)
+                .categoryId(categoryId)
                 .expense(100.0)
                 .date(ZonedDateTime.now())
                 .build();
 
         recordEntity = RecordEntity.builder()
-                .id(UUID.randomUUID())
-                .user(userEntity)
-                .category(CategoryEntity.builder().id(UUID.randomUUID()).build())
+                .id(record.getId())
+                .user(UserEntity.builder().id(userId).build())
+                .category(CategoryEntity.builder().id(categoryId).build())
                 .expense(100.0)
                 .date(ZonedDateTime.now())
                 .build();
 
-        SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken("email@example.com", null, List.of())
-        );
+        when(securityContextService.getCurrentUserId()).thenReturn(userId);
     }
 
     @Test
-    void testGetRecordById() {
+    void testGetRecordById_Success() {
         when(recordRepository.findById(any())).thenReturn(Optional.of(recordEntity));
         when(recordMapper.toRecord(recordEntity)).thenReturn(record);
 
@@ -93,7 +90,7 @@ public class RecordServiceTest {
     }
 
     @Test
-    void testGetRecordByIdNotFound() {
+    void testGetRecordById_NotFound() {
         when(recordRepository.findById(any())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> recordService.getRecordById(UUID.randomUUID()))
@@ -101,111 +98,104 @@ public class RecordServiceTest {
     }
 
     @Test
-    void testAddRecord() {
-        when(userRepository.findByEmail(any())).thenReturn(Optional.of(userEntity));
-        when(categoryRepository.findById(any())).thenReturn(Optional.of(categoryEntity));
+    void testAddRecord_Success() {
         when(recordMapper.toRecordEntity(any(Record.class))).thenReturn(recordEntity);
-        when(recordRepository.save(any())).thenReturn(recordEntity);
+        doNothing().when(categoryService).validateCategoryExists(categoryId); // якщо метод void, тоді doNothing
+        when(recordRepository.save(any(RecordEntity.class))).thenReturn(recordEntity);
         when(recordMapper.toRecord(recordEntity)).thenReturn(record);
 
         Record saved = recordService.addRecord(record);
 
         assertThat(saved).isEqualTo(record);
-        verify(recordRepository).save(any(RecordEntity.class));
+        verify(categoryService).validateCategoryExists(categoryId);
+        verify(recordRepository).save(any());
     }
 
     @Test
-    void testAddRecordCategoryNotFound() {
-        when(userRepository.findByEmail(any())).thenReturn(Optional.of(userEntity));
-        when(categoryRepository.findById(any())).thenReturn(Optional.empty());
+    void testAddRecord_CategoryNotFound() {
         when(recordMapper.toRecordEntity(any(Record.class))).thenReturn(recordEntity);
+        doThrow(new CategoryNotFoundException(categoryId)).when(categoryService).validateCategoryExists(categoryId);
 
         assertThatThrownBy(() -> recordService.addRecord(record))
                 .isInstanceOf(CategoryNotFoundException.class);
     }
 
     @Test
-    void testDeleteRecordById() {
-        when(userRepository.findByEmail(any())).thenReturn(Optional.of(userEntity));
-        when(userRepository.findUserIdByRecordId(any())).thenReturn(userEntity.getId());
+    void testDeleteRecordById_Success() {
+        when(recordRepository.findById(any())).thenReturn(Optional.of(recordEntity));
+        when(securityContextService.getCurrentUserId()).thenReturn(userId);
 
-        recordService.deleteRecordById(record.getId());
+        recordService.deleteRecordById(recordEntity.getId());
 
-        verify(recordRepository).deleteById(record.getId());
+        verify(accessValidator).validateOwner(userId, userId);
+        verify(recordRepository).deleteById(recordEntity.getId());
     }
 
     @Test
-    void testDeleteRecordByIdNoOwner() {
-        when(userRepository.findUserIdByRecordId(any())).thenReturn(null);
+    void testDeleteRecordById_RecordNotFound() {
+        when(recordRepository.findById(any())).thenReturn(Optional.empty());
 
-        recordService.deleteRecordById(record.getId());
+        assertThatCode(() -> recordService.deleteRecordById(UUID.randomUUID()))
+                .doesNotThrowAnyException();
 
         verify(recordRepository, never()).deleteById(any());
     }
 
     @Test
-    void testDeleteRecordByIdForbidden() {
-        when(userRepository.findByEmail(any())).thenReturn(Optional.of(userEntity));
-        when(userRepository.findUserIdByRecordId(record.getId())).thenReturn(UUID.randomUUID());
-
-        assertThatThrownBy(() -> recordService.deleteRecordById(record.getId()))
-                .isInstanceOf(ForbiddenException.class);
-
-        verify(recordRepository, never()).deleteById(any());
-    }
-
-    @Test
-    void testGetRecordsBothNull() {
+    void testGetRecords_BothNull_Throws() {
         assertThatThrownBy(() -> recordService.getRecords(null, null))
                 .isInstanceOf(InvalidArgumentsException.class);
     }
 
     @Test
-    void testGetRecordsOnlyCategoryGiven() {
-        when(categoryRepository.findById(any())).thenReturn(Optional.of(categoryEntity));
-        when(recordRepository.findByUserIdAndCategoryId(null, categoryEntity.getId())).thenReturn(List.of(recordEntity));
+    void testGetRecords_OnlyCategoryGiven() {
+        doNothing().when(categoryService).validateCategoryExists(categoryId);
+        when(recordRepository.findByUserIdAndCategoryId(null, categoryId)).thenReturn(List.of(recordEntity));
         when(recordMapper.toRecordList(List.of(recordEntity))).thenReturn(List.of(record));
 
-        List<Record> result = recordService.getRecords(null, categoryEntity.getId());
+        List<Record> result = recordService.getRecords(null, categoryId);
+
+        verify(categoryService).validateCategoryExists(categoryId);
+        assertThat(result).containsExactly(record);
+    }
+
+    @Test
+    void testGetRecords_OnlyUserGiven() {
+        doNothing().when(userService).validateUserExists(userId);
+        when(recordRepository.findByUserIdAndCategoryId(userId, null)).thenReturn(List.of(recordEntity));
+        when(recordMapper.toRecordList(List.of(recordEntity))).thenReturn(List.of(record));
+
+        List<Record> result = recordService.getRecords(userId, null);
+
+        verify(userService).validateUserExists(userId);
+        assertThat(result).containsExactly(record);
+    }
+
+    @Test
+    void testGetRecords_BothPresent() {
+        doNothing().when(userService).validateUserExists(userId);
+        doNothing().when(categoryService).validateCategoryExists(categoryId);
+        when(recordRepository.findByUserIdAndCategoryId(userId, categoryId)).thenReturn(List.of(recordEntity));
+        when(recordMapper.toRecordList(List.of(recordEntity))).thenReturn(List.of(record));
+
+        List<Record> result = recordService.getRecords(userId, categoryId);
 
         assertThat(result).containsExactly(record);
     }
 
     @Test
-    void testGetRecordsOnlyUserGiven() {
-        when(userRepository.findById(any())).thenReturn(Optional.of(userEntity));
-        when(recordRepository.findByUserIdAndCategoryId(userEntity.getId(), null)).thenReturn(List.of(recordEntity));
-        when(recordMapper.toRecordList(List.of(recordEntity))).thenReturn(List.of(record));
+    void testGetRecords_UserNotFound() {
+        doThrow(new UserNotFoundException(userId)).when(userService).validateUserExists(userId);
 
-        List<Record> result = recordService.getRecords(userEntity.getId(), null);
-
-        assertThat(result).containsExactly(record);
-    }
-
-    @Test
-    void testGetRecordsBothPresent() {
-        when(userRepository.findById(any())).thenReturn(Optional.of(userEntity));
-        when(recordRepository.findByUserIdAndCategoryId(any(), any())).thenReturn(List.of(recordEntity));
-        when(recordMapper.toRecordList(List.of(recordEntity))).thenReturn(List.of(record));
-
-        List<Record> result = recordService.getRecords(userEntity.getId(), categoryEntity.getId());
-
-        assertThat(result).containsExactly(record);
-    }
-
-    @Test
-    void testGetRecordsUserNotFound() {
-        when(userRepository.findById(any())).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> recordService.getRecords(UUID.randomUUID(), null))
+        assertThatThrownBy(() -> recordService.getRecords(userId, null))
                 .isInstanceOf(UserNotFoundException.class);
     }
 
     @Test
-    void testGetRecordsCategoryNotFound() {
-        when(categoryRepository.findById(any())).thenReturn(Optional.empty());
+    void testGetRecords_CategoryNotFound() {
+        doThrow(new CategoryNotFoundException(categoryId)).when(categoryService).validateCategoryExists(categoryId);
 
-        assertThatThrownBy(() -> recordService.getRecords(null, UUID.randomUUID()))
+        assertThatThrownBy(() -> recordService.getRecords(null, categoryId))
                 .isInstanceOf(CategoryNotFoundException.class);
     }
 }

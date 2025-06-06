@@ -1,19 +1,13 @@
 package dev.usenkonastia.backend_lab2.service.impl;
 
 import dev.usenkonastia.backend_lab2.domain.Category;
-import dev.usenkonastia.backend_lab2.entity.UserEntity;
 import dev.usenkonastia.backend_lab2.repository.CategoryRepository;
-import dev.usenkonastia.backend_lab2.repository.UserRepository;
+import dev.usenkonastia.backend_lab2.security.AccessValidator;
+import dev.usenkonastia.backend_lab2.security.SecurityContextService;
 import dev.usenkonastia.backend_lab2.service.CategoryService;
 import dev.usenkonastia.backend_lab2.service.exception.CategoryNotFoundException;
-import dev.usenkonastia.backend_lab2.service.exception.ForbiddenException;
-import dev.usenkonastia.backend_lab2.service.exception.UserNotFoundException;
 import dev.usenkonastia.backend_lab2.service.mapper.CategoryMapper;
-import jakarta.persistence.PersistenceException;
 import lombok.AllArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,13 +18,15 @@ import java.util.UUID;
 @AllArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
-    private final UserRepository userRepository;
+    private final SecurityContextService securityContextService;
     private final CategoryMapper categoryMapper;
+    private final AccessValidator accessValidator;
 
     @Override
     @Transactional
     public Category addCategory(Category category) {
-        UUID currentUserId = getCurrentUser();
+        UUID currentUserId = securityContextService.getCurrentUserId();
+
         category = Category.builder()
                 .categoryName(category.getCategoryName())
                 .userId(currentUserId)
@@ -57,30 +53,22 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional(readOnly = true)
     public List<Category> getUserCategories() {
-        UUID currentUserId = getCurrentUser();
+        UUID currentUserId = securityContextService.getCurrentUserId();
         return categoryMapper.toCategoryList(categoryRepository.findByUserId(currentUserId));
     }
 
     @Override
     @Transactional
     public void deleteCategory(UUID id) {
-        UUID ownerId = userRepository.findUserIdByCategoryId(id);
-        if (ownerId == null) {
-            return;
-        }
-
-        UUID currentUserId = getCurrentUser();
-        if (!ownerId.equals(currentUserId)) {
-            throw new ForbiddenException();
-        }
-        categoryRepository.deleteById(id);
+        categoryRepository.findById(id).ifPresent(categoryEntity -> {
+            UUID ownerId = categoryEntity.getUser().getId();
+            UUID currentUserId = securityContextService.getCurrentUserId();
+            accessValidator.validateOwner(currentUserId, ownerId);
+            categoryRepository.deleteById(id);
+        });
     }
 
-    private UUID getCurrentUser() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
-        return userRepository.findByEmail(email)
-                .map(UserEntity::getId)
-                .orElseThrow(() -> new UserNotFoundException(email));
+    public void validateCategoryExists(UUID categoryId) {
+        categoryRepository.findById(categoryId).orElseThrow(() -> new CategoryNotFoundException(categoryId));
     }
 }
