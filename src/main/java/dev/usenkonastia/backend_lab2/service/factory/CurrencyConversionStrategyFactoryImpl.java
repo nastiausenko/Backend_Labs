@@ -5,9 +5,6 @@ import dev.usenkonastia.backend_lab2.service.strategy.CurrencyConversionStrategy
 import dev.usenkonastia.backend_lab2.service.strategy.MonobankConversionStrategy;
 import dev.usenkonastia.backend_lab2.service.strategy.NbuConversionStrategy;
 import dev.usenkonastia.backend_lab2.service.strategy.PrivatbankConversionStrategy;
-import dev.usenkonastia.backend_lab2.service.strategy.client.MonobankClient;
-import dev.usenkonastia.backend_lab2.service.strategy.client.NbuClient;
-import dev.usenkonastia.backend_lab2.service.strategy.client.PrivatbankClient;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
