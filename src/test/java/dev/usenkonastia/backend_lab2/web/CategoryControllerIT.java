@@ -144,7 +144,7 @@ public class CategoryControllerIT extends AbstractIT {
     @Test
     @WithMockUser(username = SECOND_USER_EMAIL)
     @DisplayName("Delete other user's category by ID")
-    void testDeleteCategoryForbidden() throws Exception {
+    void testDeleteCategory_Forbidden() throws Exception {
         getUserEntity(SECOND_USER_EMAIL);
         CategoryEntity saved = categoryRepository.save(CategoryEntity.builder()
                 .user(getUserEntity(DEFAULT_USER_EMAIL))
