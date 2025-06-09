@@ -1,28 +1,33 @@
-# Лабораторна робота №4
+# Expense Tracker API
 
-### Варіант 2: Користувацькі категорії витрат
+This is a backend RESTful API application for tracking personal expenses, built with **Spring Boot**.  
+It supports CRUD operations for expense entries and includes **currency conversion** using real-time rates.
 
-Можливість створювати загальні (публічні) категорії витрат, 
-які видно всім користувачам, та користувацькі (приватні), які можуть бачити тільки користувачі, які їх визначили.
+## Features 
 
-## Запуск проєкту
+- **Category Management**: Create, retrieve, list (public and user-specific), and delete categories with access control.
+- **Record Management**: Add, retrieve, delete, and list records filtered by user and/or category, with validation of user and category existence.
+- **Currency Conversion:** Supports real-time currency conversion using exchange rates from multiple providers, with caching for performance optimization.
+- **Security & Access Control**: User authentication and authorization to ensure only owners can modify or delete their data.
 
-> NOTE: Для запуску проєкту на комп'ютері повинні бути встановлені [Docker](https://www.docker.com/) та docker-compose
+## Run the Project
 
-1. Склонуйте репозиторій, використовуючи команду:
+>  **NOTE:** To run this project locally, you must have [Docker](https://www.docker.com/) and **docker-compose** installed on your machine.
+
+1. Clone the repository:
 
 ```
 git clone https://github.com/nastiausenko/Backend_Labs.git
 ```
 
-2. Для створення образів і запуску контейнерів Docker введіть команду:
+2.	Build and run with Docker Compose:
 
 ```
 docker-compose up --build
 ```
-Після запуску проєкт буде доступний за посиланням [http://localhost:8080/api/v1](http://localhost:8080/api/v1)
 
-[Swagger UI](http://localhost:8080/swagger-ui/index.html#/)
+3.	The API will be available at: [http://localhost:8080/api/v1](http://localhost:8080/api/v1)
 
-### [Посилання на деплой](https://backend-labs-4.onrender.com/api/v1)
+### [Swagger UI](http://localhost:8080/swagger-ui/index.html#/)
+
 

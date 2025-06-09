@@ -11,4 +11,5 @@ public interface UserService {
     User getUserById(UUID id);
     List<User> getUsers();
     void deleteAccount();
+    void validateUserExists(UUID userId);
 }
