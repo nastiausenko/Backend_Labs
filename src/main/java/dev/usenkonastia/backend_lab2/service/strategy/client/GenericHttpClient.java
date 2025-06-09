@@ -1,6 +1,6 @@
 package dev.usenkonastia.backend_lab2.service.strategy.client;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -8,9 +8,10 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class GenericHttpClient {
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
 
     public <T> List<T> fetchData(String url, Class<T[]> responseType, String sourceName) {
         try {
